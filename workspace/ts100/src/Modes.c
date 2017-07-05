@@ -288,6 +288,7 @@ void drawTemp(uint16_t temp, uint8_t x) {
  * Performs all the OLED drawing for the current operating mode
  */
 void DrawUI() {
+	static uint8_t counter = 0;
 	uint16_t temp = readIronTemp(0, 0, 0xFFFF);
 	switch (operatingMode) {
 	case STARTUP:
@@ -305,25 +306,30 @@ void DrawUI() {
 	case SOLDERING:
 		//The user is soldering
 	{
-		drawTemp(temp, 0);
-		OLED_DrawChar(' ', 3);
+		if (counter == 0 || counter == 5) {
+			counter = 1;
+			drawTemp(temp, 0);
+			OLED_DrawChar(' ', 3);
 
-		OLED_BlankSlot(6 * 12 + 16, 24 - 16);//blank out the tail after the arrows
-		OLED_BlankSlot(4 * 12 + 16, 24 - 16);//blank out the tail after the temp
-		if (getIronTimer() == 0) {
-			OLED_DrawSymbol(6, 5);
-		} else {
-			if (getIronTimer() < 900) {
-				OLED_DrawSymbol(6, 7);
-			} else {		//we are heating
-				//OLED_DrawChar('H', 5);
-				OLED_DrawSymbol(6, 6);
+			OLED_BlankSlot(6 * 12 + 16, 24 - 16);//blank out the tail after the arrows
+			OLED_BlankSlot(4 * 12 + 16, 24 - 16);//blank out the tail after the temp
+			if (getIronTimer() == 0) {
+				OLED_DrawSymbol(6, 5);
+			} else {
+				if (getIronTimer() < 900) {
+					OLED_DrawSymbol(6, 7);
+				} else {		//we are heating
+					//OLED_DrawChar('H', 5);
+					OLED_DrawSymbol(6, 6);
+				}
 			}
-		}
-		if (systemSettings.displayTempInF) {
-			OLED_DrawSymbol(4, 1);
+			if (systemSettings.displayTempInF) {
+				OLED_DrawSymbol(4, 1);
+			} else {
+				OLED_DrawSymbol(4, 0);
+			}
 		} else {
-			OLED_DrawSymbol(4, 0);
+			counter++;
 		}
 	}
 		break;
